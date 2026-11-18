@@ -29,10 +29,16 @@ const PORT = process.env.PORT || 5000;
 // Security headers
 app.use(helmet());
 
-// CORS — allow the dashboard client origin
+// CORS — allow the dashboard client origin and all Vercel deployments
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile companion, curl) or localhost, or any vercel.app
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
