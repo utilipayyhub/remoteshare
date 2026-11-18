@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+.next/
+out/
+dist/
+build/
+*.log
+.DS_Store
+Thumbs.db
+coverage/
+.vercel
+*.sqlite
+*.sqlite-journal
