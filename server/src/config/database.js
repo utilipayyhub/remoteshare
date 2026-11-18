@@ -1,17 +1,13 @@
-const { Sequelize } = require('sequelize');
 const path = require('path');
-
-/**
- * Sequelize instance configured from DATABASE_URL.
- * Supports PostgreSQL with SSL in production, or SQLite for local development.
- */
-let sequelize;
 const dbUrl = process.env.DATABASE_URL;
 
+let sequelize;
+
 if (dbUrl && dbUrl.startsWith('postgres')) {
+  const { Sequelize } = require('sequelize');
   sequelize = new Sequelize(dbUrl, {
     dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? false : false,
+    logging: false,
     pool: {
       max: 10,
       min: 2,
@@ -29,27 +25,17 @@ if (dbUrl && dbUrl.startsWith('postgres')) {
         : {},
   });
 } else {
-  // Embedded SQLite database in current working directory
-  const dbPath = path.resolve(process.cwd(), 'remoteview.sqlite');
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: dbPath,
-    logging: false,
-  });
+  // Pure JavaScript Database Adapter - zero C++ native glibc dependencies
+  const { sequelize: pureSequelize } = require('./pureDb');
+  sequelize = pureSequelize;
 }
 
-/**
- * Test the database connection and log the result.
- * @returns {Promise<boolean>} true if connection succeeds
- */
 async function testConnection() {
   try {
     await sequelize.authenticate();
-    const dialect = sequelize.getDialect();
-    console.log(`✅ Database connection established successfully (${dialect.toUpperCase()}).`);
     return true;
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error.message);
+    console.error('❌ Database connection error:', error.message);
     throw error;
   }
 }
