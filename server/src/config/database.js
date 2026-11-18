@@ -29,8 +29,8 @@ if (dbUrl && dbUrl.startsWith('postgres')) {
         : {},
   });
 } else {
-  // Zero-config embedded SQLite database for immediate execution
-  const dbPath = path.resolve(__dirname, '../../remoteview.sqlite');
+  // Embedded SQLite database in current working directory
+  const dbPath = path.resolve(process.cwd(), 'remoteview.sqlite');
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: dbPath,

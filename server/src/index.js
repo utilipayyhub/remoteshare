@@ -113,12 +113,16 @@ async function start() {
     await sequelize.sync(syncOptions);
     console.log('✅ Database models synchronised.');
 
-    // Run initial cleanup, then schedule hourly
-    await cleanupExpiredSessions();
+    // Run initial cleanup safely, then schedule hourly
+    try {
+      await cleanupExpiredSessions();
+    } catch (cleanupErr) {
+      console.warn('Initial session cleanup notice:', cleanupErr.message);
+    }
     cleanupInterval = setInterval(cleanupExpiredSessions, 60 * 60 * 1000);
 
-    // Listen
-    server.listen(PORT, () => {
+    // Listen on all network interfaces (required for cloud containers like Render)
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 RemoteView server running on port ${PORT}`);
       console.log(`   Environment : ${process.env.NODE_ENV || 'development'}`);
       console.log(`   Client URL  : ${process.env.CLIENT_URL || 'http://localhost:3000'}`);

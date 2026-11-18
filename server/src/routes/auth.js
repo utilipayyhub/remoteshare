@@ -11,7 +11,8 @@ const router = express.Router();
  * @returns {string} signed JWT
  */
 function generateToken(user) {
-  return jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET || 'remoteview_default_secret_key_32bytes_min';
+  return jwt.sign({ userId: user.id, email: user.email }, secret, {
     expiresIn: process.env.JWT_EXPIRY || '7d',
   });
 }

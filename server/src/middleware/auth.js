@@ -19,7 +19,8 @@ async function authenticate(req, res, next) {
     // Verify token
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const secret = process.env.JWT_SECRET || 'remoteview_default_secret_key_32bytes_min';
+      decoded = jwt.verify(token, secret);
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
         return res.status(401).json({ error: 'Token has expired. Please log in again.' });
