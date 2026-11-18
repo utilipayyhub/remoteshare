@@ -107,9 +107,9 @@ async function start() {
     // Test database connection
     await testConnection();
 
-    // Sync models (alter in development to apply schema changes)
-    const syncOptions =
-      process.env.NODE_ENV === 'development' ? { alter: true } : { alter: false };
+    // Sync models (safe for SQLite, alter for PostgreSQL in development)
+    const dialect = sequelize.getDialect();
+    const syncOptions = dialect === 'sqlite' ? {} : (process.env.NODE_ENV === 'development' ? { alter: true } : {});
     await sequelize.sync(syncOptions);
     console.log('✅ Database models synchronised.');
 
